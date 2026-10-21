@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Installs dictate as a uv tool, a systemd user service and a GNOME shortcut.
+# Installs murmurtype as a uv tool, a systemd user service and a GNOME shortcut.
 # The default shortcut is <Primary><Shift>d (Ctrl+Shift+D); see scripts/install-shortcut.sh.
 #
 # Usage: scripts/install.sh [--cuda] [--shortcut '<Primary><Shift>d'] [--force-shortcut] [--no-shortcut]
@@ -38,7 +38,7 @@ package="$project_dir"
 $with_cuda && package="$project_dir[cuda]"
 uv tool install --force --reinstall --python 3.12 "$package"
 
-config_dir="${XDG_CONFIG_HOME:-$HOME/.config}/dictate"
+config_dir="${XDG_CONFIG_HOME:-$HOME/.config}/murmurtype"
 mkdir -p "$config_dir"
 if [[ ! -f "$config_dir/config.toml" ]]; then
     cp "$project_dir/config.example.toml" "$config_dir/config.toml"
@@ -47,11 +47,11 @@ fi
 
 unit_dir="${XDG_CONFIG_HOME:-$HOME/.config}/systemd/user"
 mkdir -p "$unit_dir"
-cp "$project_dir/systemd/dictate.service" "$unit_dir/dictate.service"
+cp "$project_dir/systemd/murmurtype.service" "$unit_dir/murmurtype.service"
 systemctl --user daemon-reload
-systemctl --user enable dictate.service
-systemctl --user restart dictate.service
-echo "Service started. Logs: journalctl --user -u dictate -f"
+systemctl --user enable murmurtype.service
+systemctl --user restart murmurtype.service
+echo "Service started. Logs: journalctl --user -u murmurtype -f"
 
 if $install_shortcut; then
     "$project_dir/scripts/install-shortcut.sh" "${shortcut_arguments[@]}"

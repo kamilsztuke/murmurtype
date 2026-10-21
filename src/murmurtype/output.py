@@ -2,7 +2,7 @@ import logging
 import subprocess
 import time
 
-from dictate.config import Config, PasteKeys
+from murmurtype.config import Config, PasteKeys
 
 log = logging.getLogger(__name__)
 

@@ -4,7 +4,8 @@ import socket
 import subprocess
 import sys
 
-from dictate.paths import socket_path
+from murmurtype.notify import APP_NAME
+from murmurtype.paths import socket_path
 
 COMMANDS = ["toggle", "start", "stop", "cancel", "status"]
 
@@ -18,17 +19,17 @@ def send(command: str) -> int:
             client.sendall(command.encode("utf-8"))
             response = client.recv(4096).decode("utf-8")
     except (FileNotFoundError, ConnectionRefusedError):
-        message = "Usługa dictate nie działa. Uruchom: systemctl --user start dictate"
+        message = "Usługa murmurtype nie działa. Uruchom: systemctl --user start murmurtype"
         print(message, file=sys.stderr)
-        subprocess.run(["notify-send", "--app-name", "Dyktowanie", "--icon", "dialog-error", "Dyktowanie", message])
+        subprocess.run(["notify-send", "--app-name", APP_NAME, "--icon", "dialog-error", APP_NAME, message])
         return 1
     print(response)
     return 1 if response.startswith("error") else 0
 
 
 def run_daemon() -> int:
-    from dictate import cuda
-    from dictate.config import load_config
+    from murmurtype import cuda
+    from murmurtype.config import load_config
 
     cuda.ensure_library_path()
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s: %(message)s")
@@ -38,14 +39,14 @@ def run_daemon() -> int:
 
     # Imported here, not at module level: the client runs on every shortcut press
     # and must not pay for importing faster-whisper.
-    from dictate.daemon import serve
+    from murmurtype.daemon import serve
 
     serve(load_config())
     return 0
 
 
 def main():
-    parser = argparse.ArgumentParser(prog="dictate", description="Whisper dictation for GNOME on Wayland.")
+    parser = argparse.ArgumentParser(prog="murmurtype", description="Whisper dictation for GNOME on Wayland.")
     parser.add_argument("command", choices=["daemon", *COMMANDS])
     arguments = parser.parse_args()
     if arguments.command == "daemon":

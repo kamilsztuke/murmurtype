@@ -6,7 +6,7 @@ from pathlib import Path
 
 CONFIG_PATH = (
     Path(os.environ.get("XDG_CONFIG_HOME", Path.home() / ".config"))
-    / "dictate"
+    / "murmurtype"
     / "config.toml"
 )
 

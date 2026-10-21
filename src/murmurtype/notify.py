@@ -3,7 +3,7 @@ import subprocess
 
 log = logging.getLogger(__name__)
 
-APP_NAME = "Dyktowanie"
+APP_NAME = "MurmurType"
 
 
 class Notifier:

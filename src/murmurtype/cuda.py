@@ -6,7 +6,7 @@ from pathlib import Path
 
 log = logging.getLogger(__name__)
 
-REEXEC_MARKER = "DICTATE_CUDA_LIBRARY_PATH_SET"
+REEXEC_MARKER = "MURMURTYPE_CUDA_LIBRARY_PATH_SET"
 
 
 def nvidia_library_dirs() -> list[str]:
@@ -37,7 +37,7 @@ def ensure_library_path():
     environment = dict(os.environ)
     environment["LD_LIBRARY_PATH"] = os.pathsep.join(directories + ([current] if current else []))
     environment[REEXEC_MARKER] = "1"
-    os.execve(sys.executable, [sys.executable, "-m", "dictate", *sys.argv[1:]], environment)
+    os.execve(sys.executable, [sys.executable, "-m", "murmurtype", *sys.argv[1:]], environment)
 
 
 def free_memory_mb() -> int:

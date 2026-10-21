@@ -5,12 +5,12 @@ import socket
 import threading
 from enum import Enum
 
-from dictate.config import Config
-from dictate.notify import Notifier
-from dictate.output import deliver
-from dictate.paths import socket_path
-from dictate.recorder import Recorder, SilenceDetector, StopReason
-from dictate.transcriber import Transcriber
+from murmurtype.config import Config
+from murmurtype.notify import Notifier
+from murmurtype.output import deliver
+from murmurtype.paths import socket_path
+from murmurtype.recorder import Recorder, SilenceDetector, StopReason
+from murmurtype.transcriber import Transcriber
 
 log = logging.getLogger(__name__)
 

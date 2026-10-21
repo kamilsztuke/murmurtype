@@ -1,6 +1,6 @@
-# Konfiguracja dictate: ~/.config/dictate/config.toml
+# Konfiguracja murmurtype: ~/.config/murmurtype/config.toml
 # Wszystkie klucze są opcjonalne; poniżej wartości domyślne.
-# Po zmianie: systemctl --user restart dictate
+# Po zmianie: systemctl --user restart murmurtype
 
 # --- Rozpoznawanie ---
 model = "large-v3-turbo"   # tiny, base, small, medium, large-v3, large-v3-turbo lub ścieżka do modelu CTranslate2

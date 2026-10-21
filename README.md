@@ -1,4 +1,4 @@
-# dictate
+# MurmurType
 
 Dyktowanie głosowe dla GNOME na Wayland. Naciskasz skrót, mówisz, a rozpoznany tekst
 wkleja się w aktywne okno. Rozpoznawanie działa lokalnie (offline) na
@@ -8,7 +8,7 @@ który dobrze radzi sobie z polskim.
 ## Jak to działa
 
 ```
-skrót GNOME ──► dictate toggle ──(gniazdo unix)──► dictate daemon (usługa systemd --user)
+skrót GNOME ──► murmurtype toggle ──(gniazdo unix)──► murmurtype daemon (usługa systemd --user)
                                                      │
                                                      ├─ pw-record: nagrywanie 16 kHz mono
                                                      ├─ koniec po ciszy / ponownym skrócie
@@ -17,7 +17,7 @@ skrót GNOME ──► dictate toggle ──(gniazdo unix)──► dictate daem
 ```
 
 - **Demon w tle** trzyma model w pamięci, więc każde dyktowanie startuje od razu.
-  Klient `dictate toggle` nie importuje Whispera i odpowiada w kilkadziesiąt milisekund.
+  Klient `murmurtype toggle` nie importuje Whispera i odpowiada w kilkadziesiąt milisekund.
 - **Koniec nagrania** następuje automatycznie po `silence_seconds` ciszy (domyślnie 2 s; `0` wyłącza),
   po ponownym naciśnięciu skrótu albo po `max_seconds`. Jeśli przez
   `no_speech_timeout_seconds` nikt nic nie powie, nagranie jest porzucane.
@@ -57,10 +57,10 @@ scripts/install.sh --cuda
 
 Skrypt:
 
-1. instaluje `dictate` jako narzędzie `uv` (`~/.local/bin/dictate`, Python 3.12),
-2. kopiuje `config.example.toml` do `~/.config/dictate/config.toml`, jeśli go jeszcze nie ma,
-3. instaluje i uruchamia usługę `~/.config/systemd/user/dictate.service`,
-4. dodaje skrót GNOME (Ustawienia → Klawiatura → Skróty własne, pozycja „Dyktowanie”).
+1. instaluje `murmurtype` jako narzędzie `uv` (`~/.local/bin/murmurtype`, Python 3.12),
+2. kopiuje `config.example.toml` do `~/.config/murmurtype/config.toml`, jeśli go jeszcze nie ma,
+3. instaluje i uruchamia usługę `~/.config/systemd/user/murmurtype.service`,
+4. dodaje skrót GNOME (Ustawienia → Klawiatura → Skróty własne, pozycja „MurmurType”).
    Istniejące skróty własne zostają nietknięte.
 
 Przy pierwszym uruchomieniu model (~1,6 GB) pobiera się z Hugging Face do
@@ -123,7 +123,7 @@ domyślnej konfiguracji Ubuntu.
 | `Super+H` | jak `Win+H` w Windows | „Minimalizuj okno” (bez innego skrótu) | brak | `scripts/install-shortcut.sh --force '<Super>h'` |
 | `Super+Alt+D` | dwa modyfikatory obok siebie pod kciukiem, niewygodny | brak | brak | `scripts/install-shortcut.sh '<Super><Alt>d'` |
 
-Przejście na inny skrót zastępuje poprzedni wpis „Dyktowanie”, więc nie trzeba go
+Przejście na inny skrót zastępuje poprzedni wpis „MurmurType”, więc nie trzeba go
 najpierw usuwać. Skrót przejęty wcześniej od GNOME nie wraca sam — przywróć go
 poleceniem `gsettings reset …`, które wypisał skrypt.
 
@@ -131,23 +131,23 @@ poleceniem `gsettings reset …`, które wypisał skrypt.
 
 | Polecenie | Działanie |
 |---|---|
-| `dictate toggle` | start nagrywania; podczas nagrywania — zakończ i rozpoznaj |
-| `dictate start` / `dictate stop` | jawny start / koniec nagrania |
-| `dictate cancel` | przerwij nagranie bez rozpoznawania |
-| `dictate status` | `idle`, `recording` albo `transcribing` |
-| `dictate daemon` | uruchamia demona (robi to usługa systemd) |
+| `murmurtype toggle` | start nagrywania; podczas nagrywania — zakończ i rozpoznaj |
+| `murmurtype start` / `murmurtype stop` | jawny start / koniec nagrania |
+| `murmurtype cancel` | przerwij nagranie bez rozpoznawania |
+| `murmurtype status` | `idle`, `recording` albo `transcribing` |
+| `murmurtype daemon` | uruchamia demona (robi to usługa systemd) |
 
 Typowo: ustaw kursor w polu tekstowym, naciśnij skrót, powiedz zdanie i zamilknij.
 Po ok. 2 s ciszy tekst się wklei.
 
 ## Konfiguracja
 
-Plik `~/.config/dictate/config.toml`; wszystkie klucze i wartości domyślne są opisane
+Plik `~/.config/murmurtype/config.toml`; wszystkie klucze i wartości domyślne są opisane
 w [config.example.toml](config.example.toml). Nieznany klucz lub zła wartość zatrzymuje
 start usługi z czytelnym błędem w logach. Po zmianie:
 
 ```bash
-systemctl --user restart dictate
+systemctl --user restart murmurtype
 ```
 
 Najczęściej zmieniane:
@@ -184,7 +184,7 @@ Najczęściej zmieniane:
 ## Diagnostyka
 
 ```bash
-journalctl --user -u dictate -f
+journalctl --user -u murmurtype -f
 ```
 
 W logach widać m.in. powód zakończenia nagrania, długość audio, urządzenie (CPU/GPU)
@@ -192,7 +192,7 @@ i czas transkrypcji.
 
 | Objaw | Przyczyna / rozwiązanie |
 |---|---|
-| „Usługa dictate nie działa” | `systemctl --user status dictate`; najczęściej błąd w `config.toml` |
+| „Usługa murmurtype nie działa” | `systemctl --user status murmurtype`; najczęściej błąd w `config.toml` |
 | Tekst w schowku, ale się nie wkleja | `ydotoold` nie działa: `systemctl --user status ydotool`; brak dostępu do `/dev/uinput` |
 | „Nic nie usłyszałem” | zły mikrofon domyślny (Ustawienia → Dźwięk) albo za wysoki `silence_threshold_db` |
 | Nagranie nie kończy się samo | szum tła powyżej progu — podnieś `silence_threshold_db` |
@@ -204,10 +204,10 @@ i czas transkrypcji.
 ```bash
 uv sync
 uv run pytest
-uv run dictate daemon   # demon z bieżącego kodu, w terminalu (zatrzymaj najpierw usługę)
+uv run murmurtype daemon   # demon z bieżącego kodu, w terminalu (zatrzymaj najpierw usługę)
 ```
 
-Struktura `src/dictate/`:
+Struktura `src/murmurtype/`:
 
 | Moduł | Rola |
 |---|---|
@@ -219,15 +219,15 @@ Struktura `src/dictate/`:
 | `output.py` | schowek i wklejanie przez `ydotool` |
 | `notify.py` | powiadomienia `notify-send` |
 | `config.py` | wczytywanie i walidacja `config.toml` |
-| `paths.py` | ścieżka gniazda (`$XDG_RUNTIME_DIR/dictate.sock`) |
+| `paths.py` | ścieżka gniazda (`$XDG_RUNTIME_DIR/murmurtype.sock`) |
 
 ## Odinstalowanie
 
 ```bash
-systemctl --user disable --now dictate
-rm ~/.config/systemd/user/dictate.service
-uv tool uninstall dictate
+systemctl --user disable --now murmurtype
+rm ~/.config/systemd/user/murmurtype.service
+uv tool uninstall murmurtype
 ```
 
 Skrót usuń w Ustawienia → Klawiatura → Skróty własne. Konfiguracja zostaje w
-`~/.config/dictate/`, model w `~/.cache/huggingface/`.
+`~/.config/murmurtype/`, model w `~/.cache/huggingface/`.

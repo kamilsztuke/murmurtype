@@ -1,6 +1,6 @@
 import numpy
 
-from dictate.recorder import SilenceDetector, StopReason, level_dbfs
+from murmurtype.recorder import SilenceDetector, StopReason, level_dbfs
 
 LOUD = -20.0
 QUIET = -60.0

@@ -4,7 +4,7 @@ PartOf=graphical-session.target
 After=graphical-session.target pipewire.service ydotool.service
 
 [Service]
-ExecStart=%h/.local/bin/dictate daemon
+ExecStart=%h/.local/bin/murmurtype daemon
 Restart=on-failure
 RestartSec=3
 

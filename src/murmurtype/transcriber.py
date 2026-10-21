@@ -7,8 +7,8 @@ import time
 import numpy
 from faster_whisper import WhisperModel
 
-from dictate import cuda
-from dictate.config import Config, Device
+from murmurtype import cuda
+from murmurtype.config import Config, Device
 
 log = logging.getLogger(__name__)
 

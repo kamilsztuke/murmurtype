@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Adds (or updates) a GNOME custom shortcut that runs `dictate toggle`.
-# Existing custom shortcuts are kept; an entry named "Dyktowanie" is reused.
+# Adds (or updates) a GNOME custom shortcut that runs `murmurtype toggle`.
+# Existing custom shortcuts are kept; an entry named "MurmurType" is reused.
 #
 # GNOME silently ignores a custom shortcut whose accelerator is already taken, so
 # candidates are tried in order and the first free one wins. The default is
@@ -22,8 +22,8 @@ for argument in "$@"; do
 done
 [[ ${#candidates[@]} -gt 0 ]] || candidates=("<Primary><Shift>d")
 
-name="Dyktowanie"
-command="$HOME/.local/bin/dictate toggle"
+name="MurmurType"
+command="$HOME/.local/bin/murmurtype toggle"
 media_keys="org.gnome.settings-daemon.plugins.media-keys"
 custom_base="/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings"
 builtin_schemas=(

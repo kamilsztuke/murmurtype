@@ -1,6 +1,6 @@
 import pytest
 
-from dictate.config import Config, Device, PasteKeys, load_config
+from murmurtype.config import Config, Device, PasteKeys, load_config
 
 
 def test_missing_file_gives_defaults(tmp_path):

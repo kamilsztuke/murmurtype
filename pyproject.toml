@@ -1,5 +1,5 @@
 [project]
-name = "dictate"
+name = "murmurtype"
 version = "0.1.0"
 description = "Push-to-talk dictation for GNOME on Wayland using faster-whisper"
 readme = "README.md"
@@ -15,7 +15,7 @@ cuda = [
 ]
 
 [project.scripts]
-dictate = "dictate.cli:main"
+murmurtype = "murmurtype.cli:main"
 
 [dependency-groups]
 dev = [
