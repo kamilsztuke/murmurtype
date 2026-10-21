@@ -1,0 +1,12 @@
+[Unit]
+Description=Whisper dictation daemon
+PartOf=graphical-session.target
+After=graphical-session.target pipewire.service ydotool.service
+
+[Service]
+ExecStart=%h/.local/bin/dictate daemon
+Restart=on-failure
+RestartSec=3
+
+[Install]
+WantedBy=graphical-session.target

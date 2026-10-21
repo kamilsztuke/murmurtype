@@ -1,0 +1,30 @@
+# Konfiguracja dictate: ~/.config/dictate/config.toml
+# Wszystkie klucze są opcjonalne; poniżej wartości domyślne.
+# Po zmianie: systemctl --user restart dictate
+
+# --- Rozpoznawanie ---
+model = "large-v3-turbo"   # tiny, base, small, medium, large-v3, large-v3-turbo lub ścieżka do modelu CTranslate2
+language = "pl"            # "" = automatyczne wykrywanie języka
+initial_prompt = ""        # np. słownictwo: "Kubernetes, Ansible, Grafana."
+beam_size = 5
+
+# --- CPU / GPU ---
+device = "auto"            # auto | cpu | cuda
+cpu_compute_type = "int8"
+cpu_threads = 0            # 0 = połowa rdzeni
+cuda_compute_type = "float16"
+cuda_min_free_mb = 3000    # auto: GPU tylko gdy tyle VRAM jest wolne
+cuda_idle_unload_seconds = 300  # auto: zwolnij VRAM po tylu sekundach bezczynności
+
+# --- Nagrywanie ---
+silence_threshold_db = -40.0     # głośność (dBFS) uznawana za mowę
+silence_seconds = 2.0            # koniec nagrania po tylu sekundach ciszy
+no_speech_timeout_seconds = 8.0  # anuluj, jeśli nikt nie zaczął mówić
+max_seconds = 120.0
+
+# --- Wklejanie ---
+paste_keys = "ctrl+v"      # ctrl+v | ctrl+shift+v | none (tylko schowek)
+paste_delay_seconds = 0.15
+trailing_space = true      # spacja po tekście, żeby kolejne dyktowania się nie sklejały
+restore_clipboard = false  # przywróć poprzedni tekst w schowku po wklejeniu
+notifications = true
