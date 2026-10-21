@@ -28,3 +28,10 @@ paste_delay_seconds = 0.15
 trailing_space = true      # spacja po tekście, żeby kolejne dyktowania się nie sklejały
 restore_clipboard = false  # przywróć poprzedni tekst w schowku po wklejeniu
 notifications = true
+
+# --- Przycisk urządzenia (murmurtype listen) ---
+# Nazwy znajdziesz poleceniem: murmurtype listen --discover
+listen_device = ""         # nazwa urządzenia (lub jej unikalny fragment) albo ścieżka /dev/input/eventN
+listen_button = ""         # np. "BTN_EXTRA" (przycisk myszy) albo "KEY_F13" (pedał)
+listen_mode = "hold"       # hold = nagrywaj, dopóki trzymasz | toggle = naciśnij, żeby zacząć i zakończyć
+listen_exclusive = false   # true = przycisk służy tylko do dyktowania (np. boczny przycisk myszy nie robi „wstecz”)

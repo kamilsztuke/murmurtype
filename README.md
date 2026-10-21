@@ -36,11 +36,14 @@ skrót GNOME ──► murmurtype toggle ──(gniazdo unix)──► murmurtyp
 - GNOME na Wayland (pod X11 też działa, ale nie było testowane)
 - PipeWire (`pw-record`), `wl-clipboard`, `ydotool` z działającym demonem `ydotoold`,
   `libnotify-bin`, [uv](https://docs.astral.sh/uv/)
-- Użytkownik z dostępem do `/dev/uinput` (zwykle grupa `input`) — potrzebne dla `ydotool`
+- Użytkownik w grupie `input` — `ydotool` potrzebuje `/dev/uinput`, a `murmurtype listen`
+  odczytuje przyciski z `/dev/input/event*`
+- Kompilator C (`build-essential`) — biblioteka `evdev` dla `murmurtype listen` buduje się
+  przy instalacji
 - Opcjonalnie: karta NVIDIA ze sterownikiem obsługującym CUDA 12
 
 ```bash
-sudo apt install pipewire-bin wl-clipboard ydotool libnotify-bin
+sudo apt install pipewire-bin wl-clipboard ydotool libnotify-bin build-essential
 ```
 
 ## Instalacja
@@ -59,9 +62,20 @@ Skrypt:
 
 1. instaluje `murmurtype` jako narzędzie `uv` (`~/.local/bin/murmurtype`, Python 3.12),
 2. kopiuje `config.example.toml` do `~/.config/murmurtype/config.toml`, jeśli go jeszcze nie ma,
-3. instaluje i uruchamia usługę `~/.config/systemd/user/murmurtype.service`,
-4. dodaje skrót GNOME (Ustawienia → Klawiatura → Skróty własne, pozycja „MurmurType”).
+3. instaluje i uruchamia usługę `~/.config/systemd/user/murmurtype.service`
+   oraz instaluje (bez włączania) `murmurtype-listen.service`,
+4. instaluje ikonę aplikacji „MurmurType” (`~/.local/share/applications/murmurtype.desktop`),
+5. dodaje skrót GNOME (Ustawienia → Klawiatura → Skróty własne, pozycja „MurmurType”).
    Istniejące skróty własne zostają nietknięte.
+
+Dodatkowe opcje (pełny opis: `scripts/install.sh --help`):
+
+| Opcja | Działanie |
+|---|---|
+| `--cuda` | obsługa GPU |
+| `--dock` | przypina ikonę do docka |
+| `--listen` | włącza usługę przycisku (patrz [Przycisk myszy lub pedał](#przycisk-myszy-lub-pedał)) |
+| `--shortcut`, `--force-shortcut`, `--no-shortcut` | patrz [Skrót klawiszowy](#skrót-klawiszowy) |
 
 Przy pierwszym uruchomieniu model (~1,6 GB) pobiera się z Hugging Face do
 `~/.cache/huggingface`, więc pierwszy start usługi trwa dłużej.
@@ -133,12 +147,122 @@ poleceniem `gsettings reset …`, które wypisał skrypt.
 |---|---|
 | `murmurtype toggle` | start nagrywania; podczas nagrywania — zakończ i rozpoznaj |
 | `murmurtype start` / `murmurtype stop` | jawny start / koniec nagrania |
+| `murmurtype hold` | start bez wykrywania ciszy — kończy go dopiero `stop` (push-to-talk) |
 | `murmurtype cancel` | przerwij nagranie bez rozpoznawania |
 | `murmurtype status` | `idle`, `recording` albo `transcribing` |
+| `murmurtype listen` | nasłuchuje przycisku urządzenia (robi to usługa `murmurtype-listen`) |
+| `murmurtype listen --discover` | pokazuje urządzenia i nazwy naciskanych przycisków |
 | `murmurtype daemon` | uruchamia demona (robi to usługa systemd) |
 
 Typowo: ustaw kursor w polu tekstowym, naciśnij skrót, powiedz zdanie i zamilknij.
-Po ok. 2 s ciszy tekst się wklei.
+Po chwili ciszy (`silence_seconds`) tekst się wklei.
+
+### Ikona
+
+Ikona „MurmurType” jest w siatce aplikacji (klawisz `Super`, wpisz „MurmurType” albo
+„dyktowanie”). Kliknięcie działa jak skrót. Prawy przycisk na ikonie w docku daje też
+„Zacznij dyktowanie”, „Zakończ i wklej” i „Anuluj”. Przypięcie do docka: instalacja
+z `--dock` albo prawy przycisk na ikonie → „Przypnij do docka”.
+
+Kliknięcie ikony zabiera fokus z okna, do którego chcesz pisać — kliknij potem z powrotem
+w pole tekstowe przed końcem nagrania, bo tekst wkleja się do okna aktywnego **w chwili
+wklejenia**.
+
+### Przycisk myszy lub pedał
+
+`murmurtype listen` uruchamia dyktowanie dowolnym przyciskiem dowolnego urządzenia
+wejściowego: bocznym przyciskiem myszy, pedałem USB, makropadem. Domyślnie działa
+w trybie **„trzymaj i mów”**: nagrywa, dopóki trzymasz przycisk, i rozpoznaje po
+puszczeniu. Wykrywanie ciszy jest wtedy wyłączone, więc pauzy w trakcie nie urywają
+nagrania.
+
+1. Znajdź urządzenie i przycisk poleceniem `murmurtype listen --discover`
+   (opis [niżej](#wyszukiwanie-urządzenia-i-przycisku)).
+
+2. Dopisz je do `~/.config/murmurtype/config.toml`:
+
+   ```toml
+   listen_device = "Logitech MX Vertical"
+   listen_button = "BTN_EXTRA"
+   listen_mode = "hold"        # albo "toggle": naciśnij, żeby zacząć i zakończyć
+   listen_exclusive = true     # przycisk służy tylko do dyktowania
+   ```
+
+3. Włącz usługę:
+
+   ```bash
+   systemctl --user enable --now murmurtype-listen
+   ```
+
+#### Wyszukiwanie urządzenia i przycisku
+
+```bash
+murmurtype listen --discover
+```
+
+Najpierw wypisuje wszystkie urządzenia wejściowe, które mają przyciski lub klawisze:
+
+```
+Input devices with buttons:
+  /dev/input/event4    Logitech ERGO K860
+  /dev/input/event3    Logitech MX Vertical
+  /dev/input/event2    Logitech M720 Triathlon
+  ...
+```
+
+Potem czeka na naciśnięcia i przy każdym wypisuje gotową linię do konfiguracji:
+
+```
+listen_device = "Logitech MX Vertical"   listen_button = "BTN_EXTRA"
+```
+
+Naciśnij przycisk, którego chcesz używać, skopiuj obie wartości do `config.toml`
+i zakończ `Ctrl+C`. Warto nacisnąć go kilka razy i sprawdzić, czy za każdym razem pojawia
+się to samo — niektóre urządzenia wysyłają przy jednym przycisku kilka kodów (np. klawisz
+z modyfikatorem); wybierz wtedy ten nietypowy, bez modyfikatora.
+
+Na co uważać:
+
+- **Wypisywane jest tylko wciśnięcie** (nie puszczenie ani ruch), więc łatwo znaleźć
+  właściwą linię. Wypisują się też klawisze klawiatury — `--discover` niczego nie zapisuje
+  ani nie wysyła, pokazuje je tylko w terminalu.
+- **Zatrzymaj najpierw usługę przycisku**, jeśli działa z `listen_exclusive = true`:
+  `systemctl --user stop murmurtype-listen`. Przejęte urządzenie nie wysyła zdarzeń do
+  innych programów, więc `--discover` nie zobaczy jego przycisków. Wirtualne kopie
+  „… (murmurtype)” są pomijane na liście.
+- **Nie każdy przycisk jest widoczny.** Przyciski obsługiwane w samym urządzeniu — np.
+  zmiana DPI w wielu myszach albo przełącznik kanałów Bluetooth — nie trafiają do
+  systemu, więc nie da się ich użyć.
+- **Mysz na odbiorniku bezprzewodowym** może pojawić się pod swoją nazwą (jak myszy
+  Logitech wyżej) albo pod nazwą odbiornika. Jeśli przez jeden odbiornik działa kilka
+  urządzeń i wszystkie mają tę samą nazwę, `listen_device` ich nie rozróżni.
+- **„No readable input devices”** oznacza brak uprawnień: dodaj użytkownika do grupy
+  `input` (`sudo usermod -aG input $USER`) i zaloguj się ponownie.
+- Na liście jest też „ydotoold virtual device” — to wirtualna klawiatura, przez którą
+  MurmurType wkleja tekst; nie wybieraj jej.
+
+`listen_device` to pełna nazwa urządzenia, jej unikalny fragment albo ścieżka
+`/dev/input/eventN` (numery mogą się zmieniać po restarcie, nazwy nie). Po odłączeniu
+urządzenia albo uśpieniu odbiornika bezprzewodowego usługa sama łączy się ponownie.
+
+**`listen_exclusive`.** Bez tego przycisk zachowuje też swoją zwykłą funkcję — boczny
+przycisk myszy jednocześnie uruchomi dyktowanie i cofnie stronę w przeglądarce. Z `true`
+usługa przejmuje urządzenie na wyłączność i przekazuje dalej wszystkie zdarzenia (ruch,
+kliknięcia, kółko) przez wirtualną kopię urządzenia „… (murmurtype)”, z wyjątkiem
+wybranego przycisku. Jeśli usługa się zatrzyma lub padnie, system od razu oddaje
+urządzenie, więc mysz nie zostanie „martwa”. Ustawienia myszy w GNOME (szybkość,
+przyspieszenie) obowiązują także kopię. Pedały i makropady zwykle wysyłają klawisze
+bez innej funkcji (np. `KEY_F13`–`KEY_F24`), więc tam `listen_exclusive` nie jest potrzebne.
+
+Jakich urządzeń użyć:
+
+| Urządzenie | Uwagi |
+|---|---|
+| boczny przycisk myszy | najtańsze — mysz już masz; ustaw `listen_exclusive = true` |
+| pedał USB (np. PCsensor, iKKEGOL) | ręce wolne, klasyka dyktowania; zaprogramuj go na `F13`–`F24` |
+| makropad, Stream Deck | Stream Deck (np. StreamController) może też wywołać `murmurtype toggle` bez `listen` |
+| telefon przez GSConnect / KDE Connect | dodaj polecenie `murmurtype toggle`; to raczej pilot, bo mówisz do mikrofonu komputera |
+| słuchawki Bluetooth | odradzane: przycisk to „play/pause”, a mikrofon słuchawek przełącza je w tryb rozmowy o gorszym dźwięku |
 
 ## Konfiguracja
 
@@ -161,6 +285,8 @@ Najczęściej zmieniane:
   używasz. Poprawia też interpunkcję, jeśli sam prompt jest poprawnie napisanym zdaniem.
 - `model` — `small` lub `medium`, jeśli CPU jest za wolne; `large-v3` dla najlepszej jakości.
 - `device` — `cpu` lub `cuda`, żeby wyłączyć automatyczny wybór.
+- `listen_*` — przycisk urządzenia, patrz [Przycisk myszy lub pedał](#przycisk-myszy-lub-pedał).
+  Po zmianie zrestartuj też `murmurtype-listen`.
 
 ## Ograniczenia i pułapki
 
@@ -185,6 +311,7 @@ Najczęściej zmieniane:
 
 ```bash
 journalctl --user -u murmurtype -f
+journalctl --user -u murmurtype-listen -f   # przycisk urządzenia
 ```
 
 W logach widać m.in. powód zakończenia nagrania, długość audio, urządzenie (CPU/GPU)
@@ -197,6 +324,8 @@ i czas transkrypcji.
 | „Nic nie usłyszałem” | zły mikrofon domyślny (Ustawienia → Dźwięk) albo za wysoki `silence_threshold_db` |
 | Nagranie nie kończy się samo | szum tła powyżej progu — podnieś `silence_threshold_db` |
 | GPU nigdy nie jest używane | za mało wolnego VRAM (patrz log „Only N MB VRAM free”) lub instalacja bez `--cuda` |
+| Przycisk nic nie robi | `journalctl --user -u murmurtype-listen`: „not found” = zła `listen_device`; „matches several devices” = podaj dłuższy fragment nazwy |
+| Przycisk dalej robi „wstecz” | ustaw `listen_exclusive = true` |
 | Błąd `libcudnn` / `libcublas` | zainstaluj z `--cuda`; demon sam ustawia `LD_LIBRARY_PATH` na biblioteki z PyPI |
 
 ## Rozwój
@@ -211,7 +340,9 @@ Struktura `src/murmurtype/`:
 
 | Moduł | Rola |
 |---|---|
-| `cli.py` | punkt wejścia; klient gniazda i start demona |
+| `cli.py` | punkt wejścia: polecenia, start demona i listenera |
+| `client.py` | klient gniazda demona |
+| `listener.py` | przycisk urządzenia przez `evdev`, wyłączność z wirtualną kopią |
 | `daemon.py` | serwer na gnieździe unix, maszyna stanów sesji dyktowania |
 | `recorder.py` | nagrywanie przez `pw-record` i wykrywanie ciszy |
 | `transcriber.py` | modele Whisper, wybór CPU/GPU, zwalnianie VRAM |
@@ -227,8 +358,9 @@ Struktura `src/murmurtype/`:
 scripts/uninstall.sh
 ```
 
-Skrypt zatrzymuje i usuwa usługę systemd, odinstalowuje narzędzie `uv`
-(`~/.local/bin/murmurtype`) i usuwa skrót „MurmurType” z GNOME. Pozostałe skróty
+Skrypt zatrzymuje i usuwa usługi systemd (`murmurtype` i `murmurtype-listen`),
+odinstalowuje narzędzie `uv` (`~/.local/bin/murmurtype`), usuwa ikonę aplikacji (także
+z docka) i skrót „MurmurType” z GNOME. Pozostałe skróty
 własne zostają nietknięte. Można go uruchomić ponownie bez błędów.
 
 Konfiguracja w `~/.config/murmurtype/` zostaje, żeby ponowna instalacja ją zachowała.

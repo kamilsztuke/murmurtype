@@ -38,6 +38,8 @@ class Daemon:
                 return self.toggle()
             case "start":
                 return self.start()
+            case "hold":
+                return self.start(stop_on_silence=False)
             case "stop":
                 return self.stop(StopReason.MANUAL)
             case "cancel":
@@ -57,18 +59,26 @@ class Daemon:
         self.notifier.show("Trwa transkrypcja…", "Poczekaj na wynik poprzedniego dyktowania.")
         return "busy"
 
-    def start(self) -> str:
+    def start(self, stop_on_silence: bool = True) -> str:
+        """Start recording. With stop_on_silence=False (push-to-talk) only `stop` ends it."""
+        silence_seconds = self.config.silence_seconds if stop_on_silence else 0
+        if not stop_on_silence:
+            listening_hint = "Mów, a potem puść przycisk."
+        elif silence_seconds > 0:
+            listening_hint = "Mów. Skończę po chwili ciszy albo po ponownym skrócie."
+        else:
+            listening_hint = "Mów. Skończę po ponownym skrócie."
         with self._state_lock:
             if self.state != State.IDLE:
                 return f"error: already {self.state.value}"
             self._recorder = Recorder(SilenceDetector(
                 threshold_db=self.config.silence_threshold_db,
-                silence_seconds=self.config.silence_seconds,
+                silence_seconds=silence_seconds,
                 no_speech_timeout_seconds=self.config.no_speech_timeout_seconds,
                 max_seconds=self.config.max_seconds,
             ))
             self.state = State.RECORDING
-        threading.Thread(target=self._run_session, args=(self._recorder,), daemon=True).start()
+        threading.Thread(target=self._run_session, args=(self._recorder, listening_hint), daemon=True).start()
         return "recording"
 
     def stop(self, reason: StopReason) -> str:
@@ -84,10 +94,9 @@ class Daemon:
             if state == State.IDLE:
                 self._recorder = None
 
-    def _run_session(self, recorder: Recorder):
+    def _run_session(self, recorder: Recorder, listening_hint: str):
         try:
-            hint = "po chwili ciszy albo po ponownym skrócie" if self.config.silence_seconds > 0 else "po ponownym skrócie"
-            self.notifier.show("Słucham…", f"Mów. Skończę {hint}.")
+            self.notifier.show("Słucham…", listening_hint)
             recording = recorder.record()
             log.info("Recording stopped: %s (%.1fs)", recording.reason.value, recording.audio.size / 16000)
 

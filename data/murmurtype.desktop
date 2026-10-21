@@ -1,0 +1,24 @@
+[Desktop Entry]
+Type=Application
+Name=MurmurType
+GenericName=Dyktowanie
+Comment=Dyktuj tekst do aktywnego okna
+Exec=@BIN@ toggle
+Icon=audio-input-microphone
+Terminal=false
+Categories=Utility;Accessibility;
+Keywords=dictation;speech;whisper;dyktowanie;mowa;
+StartupNotify=false
+Actions=start;stop;cancel;
+
+[Desktop Action start]
+Name=Zacznij dyktowanie
+Exec=@BIN@ start
+
+[Desktop Action stop]
+Name=Zakończ i wklej
+Exec=@BIN@ stop
+
+[Desktop Action cancel]
+Name=Anuluj
+Exec=@BIN@ cancel

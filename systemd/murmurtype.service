@@ -1,5 +1,5 @@
 [Unit]
-Description=Whisper dictation daemon
+Description=MurmurType dictation daemon
 PartOf=graphical-session.target
 After=graphical-session.target pipewire.service ydotool.service
 

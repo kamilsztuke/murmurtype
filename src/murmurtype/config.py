@@ -19,6 +19,11 @@ class Device(StrEnum):
     CUDA = "cuda"
 
 
+class ListenMode(StrEnum):
+    HOLD = "hold"
+    TOGGLE = "toggle"
+
+
 class PasteKeys(StrEnum):
     CTRL_V = "ctrl+v"
     CTRL_SHIFT_V = "ctrl+shift+v"
@@ -50,10 +55,16 @@ class Config:
     restore_clipboard: bool = False
     notifications: bool = True
 
+    listen_device: str = ""
+    listen_button: str = ""
+    listen_mode: ListenMode = ListenMode.HOLD
+    listen_exclusive: bool = False
+
     def __post_init__(self):
         # Coerce TOML strings into enums so invalid values fail at startup, not mid-dictation.
         object.__setattr__(self, "device", Device(self.device))
         object.__setattr__(self, "paste_keys", PasteKeys(self.paste_keys))
+        object.__setattr__(self, "listen_mode", ListenMode(self.listen_mode))
         if self.silence_seconds < 0:
             raise ValueError(f"silence_seconds must be >= 0 (0 disables), got {self.silence_seconds}")
 

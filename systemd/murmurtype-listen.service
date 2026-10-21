@@ -1,0 +1,12 @@
+[Unit]
+Description=MurmurType button listener (push-to-talk from any input device)
+PartOf=graphical-session.target
+After=graphical-session.target murmurtype.service
+
+[Service]
+ExecStart=%h/.local/bin/murmurtype listen
+Restart=on-failure
+RestartSec=3
+
+[Install]
+WantedBy=graphical-session.target
