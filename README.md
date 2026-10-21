@@ -231,3 +231,13 @@ uv tool uninstall murmurtype
 
 Skrót usuń w Ustawienia → Klawiatura → Skróty własne. Konfiguracja zostaje w
 `~/.config/murmurtype/`, model w `~/.cache/huggingface/`.
+
+## Licencja
+
+Copyright (C) 2026 Kamil Sztuke
+
+MurmurType jest wolnym oprogramowaniem na licencji
+[GNU General Public License w wersji 3](LICENSE) lub (według Twojego wyboru)
+dowolnej późniejszej wersji. Możesz go używać, zmieniać i rozpowszechniać, ale każda
+rozpowszechniana wersja pochodna musi być udostępniona na tej samej licencji, razem
+z kodem źródłowym. Program jest dostarczany bez jakiejkolwiek gwarancji.

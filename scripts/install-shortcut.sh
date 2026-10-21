@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: GPL-3.0-or-later
 # Adds (or updates) a GNOME custom shortcut that runs `murmurtype toggle`.
 # Existing custom shortcuts are kept; an entry named "MurmurType" is reused.
 #

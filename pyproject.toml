@@ -3,6 +3,8 @@ name = "murmurtype"
 version = "0.1.0"
 description = "Push-to-talk dictation for GNOME on Wayland using faster-whisper"
 readme = "README.md"
+license = "GPL-3.0-or-later"
+license-files = ["LICENSE"]
 requires-python = ">=3.11"
 dependencies = [
     "faster-whisper>=1.1",

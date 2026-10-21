@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: GPL-3.0-or-later
 # Installs murmurtype as a uv tool, a systemd user service and a GNOME shortcut.
 # The default shortcut is <Primary><Shift>d (Ctrl+Shift+D); see scripts/install-shortcut.sh.
 #
