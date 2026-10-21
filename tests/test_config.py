@@ -30,6 +30,13 @@ def test_invalid_enum_value_is_rejected(tmp_path):
         load_config(path)
 
 
+def test_negative_silence_seconds_is_rejected(tmp_path):
+    path = tmp_path / "config.toml"
+    path.write_text("silence_seconds = -1\n")
+    with pytest.raises(ValueError, match="silence_seconds"):
+        load_config(path)
+
+
 def test_example_config_matches_defaults():
     from pathlib import Path
 

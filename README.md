@@ -18,7 +18,7 @@ skrót GNOME ──► dictate toggle ──(gniazdo unix)──► dictate daem
 
 - **Demon w tle** trzyma model w pamięci, więc każde dyktowanie startuje od razu.
   Klient `dictate toggle` nie importuje Whispera i odpowiada w kilkadziesiąt milisekund.
-- **Koniec nagrania** następuje automatycznie po `silence_seconds` ciszy (domyślnie 2 s),
+- **Koniec nagrania** następuje automatycznie po `silence_seconds` ciszy (domyślnie 2 s; `0` wyłącza),
   po ponownym naciśnięciu skrótu albo po `max_seconds`. Jeśli przez
   `no_speech_timeout_seconds` nikt nic nie powie, nagranie jest porzucane.
 - **Tekst trafia przez schowek**, a nie przez `ydotool type`. `ydotool` wysyła kody
@@ -154,7 +154,9 @@ Najczęściej zmieniane:
 
 - `silence_threshold_db` — próg głośności mowy. W głośnym otoczeniu podnieś (np. `-35`),
   przy cichym mikrofonie obniż (np. `-45`).
-- `silence_seconds` — jak długą pauzę uznać za koniec wypowiedzi.
+- `silence_seconds` — jak długą pauzę uznać za koniec wypowiedzi. `0` wyłącza wykrywanie
+  ciszy: nagranie kończy dopiero ponowne naciśnięcie skrótu (albo `max_seconds`). Przydaje
+  się przy dłuższym dyktowaniu z przerwami na myślenie.
 - `initial_prompt` — podpowiedź dla modelu, np. nazwy własne i żargon, których często
   używasz. Poprawia też interpunkcję, jeśli sam prompt jest poprawnie napisanym zdaniem.
 - `model` — `small` lub `medium`, jeśli CPU jest za wolne; `large-v3` dla najlepszej jakości.

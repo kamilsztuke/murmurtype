@@ -34,6 +34,7 @@ class SilenceDetector:
         warmup_seconds: float = 0.4,
     ):
         self.threshold_db = threshold_db
+        # 0 disables stopping on silence: only a manual stop or max_seconds ends the recording.
         self.silence_seconds = silence_seconds
         self.no_speech_timeout_seconds = no_speech_timeout_seconds
         self.max_seconds = max_seconds
@@ -58,7 +59,7 @@ class SilenceDetector:
 
         if reached(self.elapsed, self.max_seconds):
             return StopReason.MAX_LENGTH
-        if self.heard_speech and reached(self.silent_for, self.silence_seconds):
+        if self.silence_seconds > 0 and self.heard_speech and reached(self.silent_for, self.silence_seconds):
             return StopReason.SILENCE
         if not self.heard_speech and reached(self.elapsed, self.no_speech_timeout_seconds):
             return StopReason.NO_SPEECH

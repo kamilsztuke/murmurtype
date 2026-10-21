@@ -52,6 +52,8 @@ class Config:
         # Coerce TOML strings into enums so invalid values fail at startup, not mid-dictation.
         object.__setattr__(self, "device", Device(self.device))
         object.__setattr__(self, "paste_keys", PasteKeys(self.paste_keys))
+        if self.silence_seconds < 0:
+            raise ValueError(f"silence_seconds must be >= 0 (0 disables), got {self.silence_seconds}")
 
 
 def load_config(path: Path = CONFIG_PATH) -> Config:

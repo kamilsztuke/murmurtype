@@ -84,7 +84,8 @@ class Daemon:
 
     def _run_session(self, recorder: Recorder):
         try:
-            self.notifier.show("Słucham…", "Mów. Skończę po chwili ciszy albo po ponownym skrócie.")
+            hint = "po chwili ciszy albo po ponownym skrócie" if self.config.silence_seconds > 0 else "po ponownym skrócie"
+            self.notifier.show("Słucham…", f"Mów. Skończę {hint}.")
             recording = recorder.record()
             log.info("Recording stopped: %s (%.1fs)", recording.reason.value, recording.audio.size / 16000)
 

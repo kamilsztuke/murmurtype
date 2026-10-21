@@ -56,6 +56,13 @@ def test_loud_transient_during_warmup_is_not_speech():
     assert feed_repeatedly(detector, QUIET, 2.0) == StopReason.NO_SPEECH
 
 
+def test_zero_silence_seconds_disables_silence_stop():
+    detector = make_detector(silence_seconds=0.0)
+    feed_repeatedly(detector, LOUD, 0.5)
+    assert feed_repeatedly(detector, QUIET, 3.0) is None
+    assert feed_repeatedly(detector, QUIET, 2.0) == StopReason.MAX_LENGTH
+
+
 def test_level_dbfs():
     assert level_dbfs(numpy.zeros(1600, dtype=numpy.float32)) == -120.0
     full_scale = numpy.ones(1600, dtype=numpy.float32)
