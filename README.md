@@ -224,13 +224,29 @@ Struktura `src/murmurtype/`:
 ## Odinstalowanie
 
 ```bash
-systemctl --user disable --now murmurtype
-rm ~/.config/systemd/user/murmurtype.service
-uv tool uninstall murmurtype
+scripts/uninstall.sh
 ```
 
-Skrót usuń w Ustawienia → Klawiatura → Skróty własne. Konfiguracja zostaje w
-`~/.config/murmurtype/`, model w `~/.cache/huggingface/`.
+Skrypt zatrzymuje i usuwa usługę systemd, odinstalowuje narzędzie `uv`
+(`~/.local/bin/murmurtype`) i usuwa skrót „MurmurType” z GNOME. Pozostałe skróty
+własne zostają nietknięte. Można go uruchomić ponownie bez błędów.
+
+Konfiguracja w `~/.config/murmurtype/` zostaje, żeby ponowna instalacja ją zachowała.
+Żeby usunąć także ją:
+
+```bash
+scripts/uninstall.sh --purge
+```
+
+Czego skrypt nie usuwa:
+
+- **Modelu Whisper** w `~/.cache/huggingface/hub/` (ok. 1,6 GB) — to wspólna pamięć
+  podręczna Hugging Face, z której mogą korzystać inne programy. Katalog modelu nazywa
+  się `models--…faster-whisper-large-v3-turbo` i można go usunąć ręcznie.
+- **Skrótów przejętych od GNOME przez `--force`** — przywróć je poleceniem
+  `gsettings reset …`, które wypisał instalator.
+- **Pakietów systemowych** (`ydotool`, `wl-clipboard` itd.), bo mogą być używane przez
+  inne programy.
 
 ## Licencja
 
