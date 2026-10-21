@@ -1,18 +1,33 @@
 #!/usr/bin/env bash
 # SPDX-License-Identifier: GPL-3.0-or-later
-# Removes what scripts/install.sh set up: the systemd user services, the uv tool, the
-# app launcher (and its dock pin) and the GNOME shortcut. The config is kept unless
-# --purge is given. The Whisper model stays in the shared Hugging Face cache, which
-# other programs may also use.
-#
-# Usage: scripts/uninstall.sh [--purge]
 set -euo pipefail
+
+usage() {
+    cat <<'HELP'
+Usage: scripts/uninstall.sh [--purge]
+
+Removes what scripts/install.sh set up: the systemd user services murmurtype and
+murmurtype-listen, the `murmurtype` command (uv tool), the app launcher and its dock
+pin, and the GNOME shortcut "MurmurType". Safe to run again.
+
+Not removed:
+  - ~/.config/murmurtype (unless --purge), so a reinstall keeps your settings
+  - the Whisper model in ~/.cache/huggingface/hub, a cache shared with other programs
+  - built-in GNOME shortcuts taken over with --force; restore them with the
+    `gsettings reset ...` command printed by install-shortcut.sh
+
+Options:
+  --purge     also remove ~/.config/murmurtype
+  -h, --help  show this help
+HELP
+}
 
 purge=false
 while [[ $# -gt 0 ]]; do
     case "$1" in
         --purge) purge=true; shift ;;
-        *) echo "Unknown option: $1" >&2; exit 1 ;;
+        -h|--help) usage; exit 0 ;;
+        *) echo "Unknown option: $1 (see --help)" >&2; exit 1 ;;
     esac
 done
 

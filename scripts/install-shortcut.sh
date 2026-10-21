@@ -1,23 +1,41 @@
 #!/usr/bin/env bash
 # SPDX-License-Identifier: GPL-3.0-or-later
-# Adds (or updates) a GNOME custom shortcut that runs `murmurtype toggle`.
-# Existing custom shortcuts are kept; an entry named "MurmurType" is reused.
-#
-# GNOME silently ignores a custom shortcut whose accelerator is already taken, so
-# candidates are tried in order and the first free one wins. The default is
-# <Primary><Shift>d (Ctrl+Shift+D).
-# With --force the first candidate is used even if taken: its accelerator is removed
-# from conflicting built-in GNOME shortcuts.
-#
-# Usage: scripts/install-shortcut.sh [--force] [CANDIDATE...]
 set -euo pipefail
+
+usage() {
+    cat <<'HELP'
+Usage: scripts/install-shortcut.sh [--force] [ACCEL...]
+
+Adds or updates the GNOME custom shortcut "MurmurType" that runs `murmurtype toggle`.
+Other custom shortcuts are kept; an existing "MurmurType" entry is reused.
+
+GNOME silently ignores a custom shortcut whose keys are already taken, so each ACCEL
+is checked against built-in GNOME shortcuts and other custom shortcuts, in the given
+order, and the first free one is used. Default: '<Primary><Shift>d' (Ctrl+Shift+D).
+
+ACCEL uses the gsettings format: <Primary> = Ctrl, <Super>, <Alt>, <Shift>, then the
+key in lowercase, e.g. '<Super>d', '<Primary><Alt>d', '<Super>backslash'.
+
+Options:
+  --force     use the first ACCEL even if a built-in GNOME action uses it: the keys
+              are removed from that action, and the command to restore it
+              (gsettings reset ...) is printed; other custom shortcuts are never taken
+  -h, --help  show this help
+
+Examples:
+  scripts/install-shortcut.sh
+  scripts/install-shortcut.sh '<Super>d' '<Primary><Shift>d'
+  scripts/install-shortcut.sh --force '<Super>d'
+HELP
+}
 
 force=false
 candidates=()
 for argument in "$@"; do
     case "$argument" in
         --force) force=true ;;
-        -*) echo "Unknown option: $argument" >&2; exit 1 ;;
+        -h|--help) usage; exit 0 ;;
+        -*) echo "Unknown option: $argument (see --help)" >&2; exit 1 ;;
         *) candidates+=("$argument") ;;
     esac
 done
